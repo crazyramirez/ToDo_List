@@ -129,109 +129,60 @@ function addTask(taskText, isCompleted = false, position = 0) {  // Changed defa
 
 // Function to set up drag and drop functionality for a task item
 function setupDragAndDrop(taskItem) {
-    let touchStartY;
     let currentIndex;
-    let longPressTimer;
     let isDragging = false;
 
-    // Touch events for mobile
-    taskItem.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-        currentIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
-        
-        longPressTimer = setTimeout(() => {
-            startDragging(taskItem);
-        }, 300);
-    }, { passive: false });
-
-    taskItem.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        handleDragMove(e.touches[0].clientY, taskItem);
-    }, { passive: false });
-
-    taskItem.addEventListener('touchend', function() {
-        endDragging(taskItem);
-    });
-
-    // Mouse events for desktop
-    taskItem.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        startDragging(taskItem);
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (isDragging) {
-            handleDragMove(e.clientY, taskItem);
-        }
-    });
-
-    document.addEventListener('mouseup', function() {
-        if (isDragging) {
-            endDragging(taskItem);
-        }
-    });
-
-    function startDragging(item) {
+    const startDragging = () => {
         isDragging = true;
-        item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-        item.style.transform = 'scale(1.05)';
-        
-        // Set opacity for non-selected items
-        const taskList = item.parentNode;
-        Array.from(taskList.children).forEach(child => {
-            if (child !== item) {
-                child.style.transition = 'opacity 0.2s ease';
-                child.style.opacity = '0.5';
-            }
+        taskItem.style.transform = 'scale(1.05)';
+        Array.from(taskItem.parentNode.children).forEach(child => {
+            child.style.opacity = child === taskItem ? '1' : '0.5';
         });
-    }
+    };
 
-    function handleDragMove(clientY, item) {
+    const handleDragMove = (clientY) => {
         if (!isDragging) return;
-
-        const taskList = item.parentNode;
+        const taskList = taskItem.parentNode;
         const tasks = Array.from(taskList.children);
-        const newIndex = tasks.reduce((closest, child, index) => {
+        const newIndex = tasks.findIndex(child => {
             const box = child.getBoundingClientRect();
-            const offset = clientY - box.top - box.height / 4;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, index: index };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).index;
-
-        if (newIndex !== currentIndex) {
-            taskList.insertBefore(item, tasks[newIndex]);
+            return clientY < box.top + box.height / 2;
+        });
+        if (newIndex !== -1 && newIndex !== currentIndex) {
+            taskList.insertBefore(taskItem, tasks[newIndex] || null);
             currentIndex = newIndex;
         }
-    }
+    };
 
-    function endDragging(item) {
-        clearTimeout(longPressTimer);
-        if (isDragging) {
-            item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-            item.style.transform = 'scale(1)';
-            
-            // Reset opacity for all items
-            const taskList = item.parentNode;
-            Array.from(taskList.children).forEach(child => {
-                child.style.transition = 'opacity 0.2s ease';
-                child.style.opacity = '1';
-            });
-            
-            setTimeout(() => {
-                item.style.transition = '';
-                item.style.transform = '';
-                Array.from(taskList.children).forEach(child => {
-                    child.style.transition = '';
-                });
-            }, 200);
-            saveTasks();
-            updateEmptyListMessage();
-        }
+    const endDragging = () => {
+        if (!isDragging) return;
         isDragging = false;
-    }
+        taskItem.style.transform = '';
+        Array.from(taskItem.parentNode.children).forEach(child => {
+            child.style.opacity = '1';
+        });
+        saveTasks();
+        updateEmptyListMessage();
+    };
+
+    // Touch events
+    taskItem.addEventListener('touchstart', (e) => {
+        currentIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
+        setTimeout(startDragging, 300);
+    }, { passive: true });
+    taskItem.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleDragMove(e.touches[0].clientY);
+    }, { passive: false });
+    taskItem.addEventListener('touchend', endDragging);
+
+    // Mouse events
+    taskItem.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        startDragging();
+    });
+    document.addEventListener('mousemove', (e) => handleDragMove(e.clientY));
+    document.addEventListener('mouseup', endDragging);
 }
 
 // Function to set up edit on double tap functionality for a task item

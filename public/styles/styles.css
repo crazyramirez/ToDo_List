@@ -200,6 +200,8 @@ dialog {
     border-radius: 10px;
     border: none;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    max-width: 300px;
+    padding: 30px;
 }
 
 dialog p {
