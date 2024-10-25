@@ -4,6 +4,7 @@
 
 A simple, elegant, and responsive ToDo List web application built with HTML, CSS, and JavaScript.
 This is a simple exercise to learn how to make a ToDo List using common web technologies.
+No Frameworks / No Libraries.
 Change it and adapt it to your needs.
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
@@ -16,7 +17,7 @@ Change it and adapt it to your needs.
 - Add new tasks
 - Mark tasks as completed
 - Edit existing tasks
-- Delete tasks
+- Delete tasks (Double click on the task)
 - Drag and drop to reorder tasks
 - Responsive design for mobile and desktop
 - Local storage to persist tasks
