@@ -11,7 +11,9 @@ No Frameworks / No Libraries.
 Change it and adapt it to your needs.
 <br>
 <br>
-Try it: [ToDoList](https://www.viseni.com/todo/){target="_blank"}
+Try it:
+<br>
+<p><a href="https://www.viseni.com/todo/" target="_blank">ToDo List DEMO</a></p>
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
   <img src="public/images/capture_2.png" alt="ToDo List App" style="width: 48%; touch-action: none;">
