@@ -1,3 +1,5 @@
+![Viseni Logo](public/images/logo_viseni.jpg)
+
 # ToDo List App
 
 A simple, elegant, and responsive ToDo List web application built with HTML, CSS, and JavaScript.
