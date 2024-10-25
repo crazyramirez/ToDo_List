@@ -73,6 +73,7 @@ function addTask(taskText, isCompleted = false, position = 0) {  // Changed defa
     const deleteButton = document.createElement('button');
     deleteButton.textContent = '-';
     deleteButton.addEventListener('click', function() {
+
         const dialog = document.createElement('dialog');
         dialog.innerHTML = `
             <p>¿Estás seguro de que quieres eliminar esta tarea?</p>
@@ -129,60 +130,110 @@ function addTask(taskText, isCompleted = false, position = 0) {  // Changed defa
 
 // Function to set up drag and drop functionality for a task item
 function setupDragAndDrop(taskItem) {
+    let touchStartY;
     let currentIndex;
+    let longPressTimer;
     let isDragging = false;
+    const dragHandle = taskItem.querySelector('span');
 
-    const startDragging = () => {
+    // Touch events for mobile
+    dragHandle.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+        currentIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
+        
+        longPressTimer = setTimeout(() => {
+            startDragging(taskItem);
+        }, 300);
+    }, { passive: false });
+
+    dragHandle.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        handleDragMove(e.touches[0].clientY, taskItem);
+    }, { passive: false });
+
+    dragHandle.addEventListener('touchend', function() {
+        endDragging(taskItem);
+    });
+
+    // Mouse events for desktop
+    dragHandle.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        startDragging(taskItem);
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            handleDragMove(e.clientY, taskItem);
+        }
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            endDragging(taskItem);
+        }
+    });
+
+    function startDragging(item) {
         isDragging = true;
-        taskItem.style.transform = 'scale(1.05)';
-        Array.from(taskItem.parentNode.children).forEach(child => {
-            child.style.opacity = child === taskItem ? '1' : '0.5';
+        item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        item.style.transform = 'scale(1.05)';
+        
+        // Set opacity for non-selected items
+        const taskList = item.parentNode;
+        Array.from(taskList.children).forEach(child => {
+            if (child !== item) {
+                child.style.transition = 'opacity 0.2s ease';
+                child.style.opacity = '0.5';
+            }
         });
-    };
+    }
 
-    const handleDragMove = (clientY) => {
+    function handleDragMove(clientY, item) {
         if (!isDragging) return;
-        const taskList = taskItem.parentNode;
+
+        const taskList = item.parentNode;
         const tasks = Array.from(taskList.children);
-        const newIndex = tasks.findIndex(child => {
+        const newIndex = tasks.reduce((closest, child, index) => {
             const box = child.getBoundingClientRect();
-            return clientY < box.top + box.height / 2;
-        });
-        if (newIndex !== -1 && newIndex !== currentIndex) {
-            taskList.insertBefore(taskItem, tasks[newIndex] || null);
+            const offset = clientY - box.top - box.height / 4;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, index: index };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).index;
+
+        if (newIndex !== currentIndex) {
+            taskList.insertBefore(item, tasks[newIndex]);
             currentIndex = newIndex;
         }
-    };
+    }
 
-    const endDragging = () => {
-        if (!isDragging) return;
+    function endDragging(item) {
+        clearTimeout(longPressTimer);
+        if (isDragging) {
+            item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            item.style.transform = 'scale(1)';
+            
+            // Reset opacity for all items
+            const taskList = item.parentNode;
+            Array.from(taskList.children).forEach(child => {
+                child.style.transition = 'opacity 0.2s ease';
+                child.style.opacity = '1';
+            });
+            
+            setTimeout(() => {
+                item.style.transition = '';
+                item.style.transform = '';
+                Array.from(taskList.children).forEach(child => {
+                    child.style.transition = '';
+                });
+            }, 200);
+            saveTasks();
+            updateEmptyListMessage();
+        }
         isDragging = false;
-        taskItem.style.transform = '';
-        Array.from(taskItem.parentNode.children).forEach(child => {
-            child.style.opacity = '1';
-        });
-        saveTasks();
-        updateEmptyListMessage();
-    };
-
-    // Touch events
-    taskItem.addEventListener('touchstart', (e) => {
-        currentIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
-        setTimeout(startDragging, 300);
-    }, { passive: true });
-    taskItem.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        handleDragMove(e.touches[0].clientY);
-    }, { passive: false });
-    taskItem.addEventListener('touchend', endDragging);
-
-    // Mouse events
-    taskItem.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        startDragging();
-    });
-    document.addEventListener('mousemove', (e) => handleDragMove(e.clientY));
-    document.addEventListener('mouseup', endDragging);
+    }
 }
 
 // Function to set up edit on double tap functionality for a task item
@@ -218,15 +269,14 @@ function enterEditMode(taskItem, taskLabel) {
     taskLabel.style.display = 'none';
     
     const handleExit = function() {
-        if (input.parentNode === taskItem) {
-            exitEditMode(taskItem, taskLabel, input);
-        }
+        exitEditMode(taskItem, taskLabel, input);
     };
 
     input.addEventListener('blur', handleExit);
 
     input.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
+            event.preventDefault();
             handleExit();
         }
     });
@@ -234,18 +284,25 @@ function enterEditMode(taskItem, taskLabel) {
 
 // Function to exit edit mode for a task item
 function exitEditMode(taskItem, taskLabel, input) {
+    if (!input || !taskItem.contains(input)) {
+        return;
+    }
+
     const newText = input.value.trim();
     if (newText !== '') {
         taskLabel.textContent = newText;
     }
     taskLabel.style.display = '';
     taskLabel.style.visibility = 'visible';
-    if (input && input.parentNode === taskItem) {
-        taskItem.removeChild(input);
-    }
-    saveTasks();
+    
+    // Use requestAnimationFrame to ensure DOM updates before removing the input
+    requestAnimationFrame(() => {
+        if (taskItem.contains(input)) {
+            taskItem.removeChild(input);
+        }
+        saveTasks();
+    });
 }
-
 // Function to save tasks to local storage
 function saveTasks() {
     const tasks = [];
