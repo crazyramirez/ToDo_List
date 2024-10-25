@@ -11,8 +11,8 @@ No Frameworks / No Libraries.
 Change it and adapt it to your needs.
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
-  <img src="public/images/capture_2.png" alt="ToDo List App" style="width: 48%;">
-  <img src="public/images/capture_1.png" alt="ToDo List App" style="width: 48%;">
+  <img src="public/images/capture_2.png" alt="ToDo List App" style="width: 48%; touch-action: none;">
+  <img src="public/images/capture_1.png" alt="ToDo List App" style="width: 48%; touch-action: none;">
 </div>
 
 ## Features
