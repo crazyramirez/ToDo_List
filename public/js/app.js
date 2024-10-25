@@ -229,7 +229,6 @@ function setupEditOnDoubleTap(taskItem, taskLabel) {
         enterEditMode(taskItem, taskLabel);
     });
 }
-
 // Function to enter edit mode for a task item
 function enterEditMode(taskItem, taskLabel) {
     const currentText = taskLabel.textContent;
@@ -242,13 +241,17 @@ function enterEditMode(taskItem, taskLabel) {
     input.style.width = '100%';
     taskLabel.style.display = 'none';
     
-    input.addEventListener('blur', function() {
-        exitEditMode(taskItem, taskLabel, input);
-    });
+    const handleExit = function() {
+        if (input.parentNode === taskItem) {
+            exitEditMode(taskItem, taskLabel, input);
+        }
+    };
+
+    input.addEventListener('blur', handleExit);
 
     input.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
-            exitEditMode(taskItem, taskLabel, input);
+            handleExit();
         }
     });
 }
