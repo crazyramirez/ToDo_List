@@ -13,7 +13,7 @@ Change it and adapt it to your needs.
 <br>
 Try it:
 <br>
-<b><a href="https://www.viseni.com/todo/" target="_blank">https://www.viseni.com/todo/</a></b>
+<b>[<a href="https://www.viseni.com/todo/" target="_blank">https://www.viseni.com/todo/</a>](https://www.viseni.com/todo/)</b>
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
   <img src="public/images/capture_2.png" alt="ToDo List App" style="width: 48%; touch-action: none;">
