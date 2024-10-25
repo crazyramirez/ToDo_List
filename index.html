@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="public/styles/styles.css?id=30">
+</head>
+<body>
+    <div class="container">
+        <h2>📝 TODO LIST ✅</h2>
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Nueva tarea...">
+            <button id="addTaskButton">+</button>
+        </div>
+        <ul id="taskList"></ul>
+        <div id="emptyListMessage">
+            <h3>No hay tareas</h3>
+            <hr style="width: 80%; opacity: 0.2;">
+            <p>➕ Añade una tarea para empezar</p>
+            <p>👀 Doble click para editar</p>
+            <p>👆 Pulsa y mantén para arrastrar</p>
+            <p class="arrow">🐱</p>
+        </div>
+    </div>
+    <script src="public/js/app.js?id=30"></script>
+</body>
+</html>
