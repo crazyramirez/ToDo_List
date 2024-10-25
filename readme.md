@@ -4,6 +4,9 @@
 
 A simple, elegant, and responsive ToDo List web application built with HTML, CSS, and JavaScript.
 
+![ToDo List App](public/images/capture_1.png)
+![ToDo List App](public/images/capture_2.png)
+
 ## Features
 
 - Add new tasks
