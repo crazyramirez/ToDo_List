@@ -3,8 +3,11 @@
 # ToDo List App
 
 A simple, elegant, and responsive ToDo List web application built with HTML, CSS, and JavaScript.
+<br>
 This is a simple exercise to learn how to make a ToDo List using common web technologies.
+<br>
 No Frameworks / No Libraries.
+<br>
 Change it and adapt it to your needs.
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
