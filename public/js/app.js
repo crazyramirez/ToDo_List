@@ -261,7 +261,9 @@ function exitEditMode(taskItem, taskLabel, input) {
     }
     taskLabel.style.display = '';
     taskLabel.style.visibility = 'visible';
-    taskItem.removeChild(input);
+    if (input && input.parentNode === taskItem) {
+        taskItem.removeChild(input);
+    }
     saveTasks();
 }
 
