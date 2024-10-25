@@ -225,11 +225,13 @@ dialog::backdrop {
 #confirmDelete {
     background-color: var(--delete-button-color);
     width: 100%;
+    outline: none;
 }
 
 #cancelDelete {
     background-color: var(--primary-color);
     width: 100%;
+    outline: none;
 }
 
 @keyframes bounce {
