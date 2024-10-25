@@ -5,8 +5,8 @@
 A simple, elegant, and responsive ToDo List web application built with HTML, CSS, and JavaScript.
 
 <div style="display: flex; justify-content: space-between; width: 100%;">
-  <img src="public/images/capture_1.png" alt="ToDo List App" style="width: 48%;">
   <img src="public/images/capture_2.png" alt="ToDo List App" style="width: 48%;">
+  <img src="public/images/capture_1.png" alt="ToDo List App" style="width: 48%;">
 </div>
 
 ## Features
