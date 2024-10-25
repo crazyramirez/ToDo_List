@@ -134,41 +134,66 @@ function setupDragAndDrop(taskItem) {
     let longPressTimer;
     let isDragging = false;
 
+    // Touch events for mobile
     taskItem.addEventListener('touchstart', function(e) {
         touchStartY = e.touches[0].clientY;
         currentIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
         
         longPressTimer = setTimeout(() => {
-            isDragging = true;
-            taskItem.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-            taskItem.style.transform = 'scale(1.05)';
-            
-            // Set opacity for non-selected items
-            const taskList = taskItem.parentNode;
-            Array.from(taskList.children).forEach(item => {
-                if (item !== taskItem) {
-                    item.style.transition = 'opacity 0.2s ease';
-                    item.style.opacity = '0.5';
-                }
-            });
+            startDragging(taskItem);
         }, 300);
     }, { passive: false });
 
     taskItem.addEventListener('touchmove', function(e) {
         e.preventDefault();
-        clearTimeout(longPressTimer);
+        handleDragMove(e.touches[0].clientY, taskItem);
+    }, { passive: false });
 
+    taskItem.addEventListener('touchend', function() {
+        endDragging(taskItem);
+    });
+
+    // Mouse events for desktop
+    taskItem.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        startDragging(taskItem);
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            handleDragMove(e.clientY, taskItem);
+        }
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            endDragging(taskItem);
+        }
+    });
+
+    function startDragging(item) {
+        isDragging = true;
+        item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        item.style.transform = 'scale(1.05)';
+        
+        // Set opacity for non-selected items
+        const taskList = item.parentNode;
+        Array.from(taskList.children).forEach(child => {
+            if (child !== item) {
+                child.style.transition = 'opacity 0.2s ease';
+                child.style.opacity = '0.5';
+            }
+        });
+    }
+
+    function handleDragMove(clientY, item) {
         if (!isDragging) return;
 
-        const touchY = e.touches[0].clientY;
-        const diff = touchY - touchStartY;
-        // taskItem.style.transform = `scale(1.05) translateY(${diff}px)`;
-
-        const taskList = taskItem.parentNode;
+        const taskList = item.parentNode;
         const tasks = Array.from(taskList.children);
         const newIndex = tasks.reduce((closest, child, index) => {
             const box = child.getBoundingClientRect();
-            const offset = touchY - box.top - box.height / 4;
+            const offset = clientY - box.top - box.height / 4;
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, index: index };
             } else {
@@ -177,36 +202,36 @@ function setupDragAndDrop(taskItem) {
         }, { offset: Number.NEGATIVE_INFINITY }).index;
 
         if (newIndex !== currentIndex) {
-            taskList.insertBefore(taskItem, tasks[newIndex]);
+            taskList.insertBefore(item, tasks[newIndex]);
             currentIndex = newIndex;
         }
-    }, { passive: false });
+    }
 
-    taskItem.addEventListener('touchend', function() {
+    function endDragging(item) {
         clearTimeout(longPressTimer);
         if (isDragging) {
-            taskItem.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-            taskItem.style.transform = 'scale(1)';
+            item.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            item.style.transform = 'scale(1)';
             
             // Reset opacity for all items
-            const taskList = taskItem.parentNode;
-            Array.from(taskList.children).forEach(item => {
-                item.style.transition = 'opacity 0.2s ease';
-                item.style.opacity = '1';
+            const taskList = item.parentNode;
+            Array.from(taskList.children).forEach(child => {
+                child.style.transition = 'opacity 0.2s ease';
+                child.style.opacity = '1';
             });
             
             setTimeout(() => {
-                taskItem.style.transition = '';
-                taskItem.style.transform = '';
-                Array.from(taskList.children).forEach(item => {
-                    item.style.transition = '';
+                item.style.transition = '';
+                item.style.transform = '';
+                Array.from(taskList.children).forEach(child => {
+                    child.style.transition = '';
                 });
             }, 200);
             saveTasks();
             updateEmptyListMessage();
         }
         isDragging = false;
-    });
+    }
 }
 
 // Function to set up edit on double tap functionality for a task item
